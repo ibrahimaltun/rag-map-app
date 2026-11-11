@@ -1,0 +1,22 @@
+# node_modules
+node_modules/
+
+# next.js çıktıları
+.next/
+out/
+
+# ortam dosyaları
+.env
+.env.local
+.env*.local
+
+# üretilen vektör deposu (doküman değişince yeniden oluşturulur)
+data/vector-store.json
+
+# sistem
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
+tsconfig.tsbuildinfo
+next-env.d.ts

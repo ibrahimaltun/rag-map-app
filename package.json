@@ -1,0 +1,27 @@
+{
+  "name": "rag-map-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Harita arayüzlü, Ollama (llama3.2 + nomic-embed-text) destekli RAG soru-cevap sistemi",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "smoke": "node scripts/smoke-test.mjs"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "next": "^15.3.3",
+    "pdf-parse": "^1.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.12",
+    "@types/node": "^22",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
