@@ -1,0 +1,385 @@
+/**
+ * RAG soru-cevap overlay stilleri.
+ *
+ * ÖNEMLİ — z-index katmanlaması:
+ *   Leaflet harita pane'leri 200–700 arası, kontroller 800–1000 arası
+ *   z-index kullanır. Haritadan bağımsız overlay katmanı bunların ÜSTÜNDE
+ *   kalması için 1250 değerini kullanır.
+ */
+
+.rag-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;
+  pointer-events: none; /* kök katman harita tıklamalarını engellemesin */
+}
+
+.rag-root > * {
+  pointer-events: auto;
+}
+
+/* ---------- Açma butonu (harita üzerinde, sağ altta) ---------- */
+.rag-open-btn {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow:
+    0 10px 30px rgba(14, 165, 233, 0.35),
+    0 4px 12px rgba(2, 6, 23, 0.4);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  animation: rag-pulse 2.6s ease-in-out infinite;
+}
+
+.rag-open-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 36px rgba(14, 165, 233, 0.45),
+    0 6px 16px rgba(2, 6, 23, 0.45);
+}
+
+.rag-open-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.rag-open-btn-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@keyframes rag-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 30px rgba(14, 165, 233, 0.35),
+      0 4px 12px rgba(2, 6, 23, 0.4),
+      0 0 0 0 rgba(99, 102, 241, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 10px 30px rgba(14, 165, 233, 0.35),
+      0 4px 12px rgba(2, 6, 23, 0.4),
+      0 0 0 12px rgba(99, 102, 241, 0);
+  }
+}
+
+/* ---------- Panel ---------- */
+.rag-panel {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: min(440px, calc(100vw - 32px));
+  height: min(620px, calc(100vh - 96px));
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  background: rgba(13, 20, 34, 0.94);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 24px 60px rgba(2, 6, 23, 0.65),
+    0 8px 24px rgba(2, 6, 23, 0.5);
+  overflow: hidden;
+}
+
+.rag-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.rag-panel-title h2 {
+  margin: 0;
+  font-size: 15.5px;
+  color: #f1f5f9;
+}
+
+.rag-panel-title p {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  color: #7dd3fc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.rag-panel-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rag-icon-btn {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.08);
+  color: #cbd5e1;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.rag-icon-btn:hover {
+  background: rgba(148, 163, 184, 0.2);
+  color: #fff;
+}
+
+.rag-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.rag-warning {
+  padding: 10px 16px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.rag-warning code {
+  color: #fde68a;
+}
+
+/* ---------- Mesaj alanı ---------- */
+.rag-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+.rag-empty {
+  margin: auto;
+  text-align: center;
+  padding: 20px;
+  max-width: 320px;
+}
+
+.rag-empty-icon {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.rag-empty p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+.rag-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.rag-suggestion {
+  padding: 9px 14px;
+  border-radius: 11px;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: rgba(56, 189, 248, 0.07);
+  color: #bae6fd;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.rag-suggestion:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(125, 211, 252, 0.55);
+}
+
+.rag-suggestion:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.rag-msg {
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.rag-msg-user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.rag-msg-assistant {
+  align-self: flex-start;
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  color: #e2e8f0;
+  border-bottom-left-radius: 4px;
+}
+
+.rag-msg-error {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+}
+
+.rag-typing {
+  display: inline-block;
+  color: #94a3b8;
+  animation: rag-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes rag-blink {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Kaynaklar ---------- */
+.rag-sources {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.rag-sources summary {
+  cursor: pointer;
+  color: #7dd3fc;
+  font-weight: 600;
+}
+
+.rag-sources ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rag-sources li {
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(2, 6, 23, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.rag-source-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.rag-sources p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+/* ---------- Giriş satırı ---------- */
+.rag-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(2, 6, 23, 0.35);
+}
+
+.rag-input {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.8);
+  color: #f1f5f9;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.rag-input:focus {
+  border-color: rgba(125, 211, 252, 0.6);
+}
+
+.rag-input::placeholder {
+  color: #64748b;
+}
+
+.rag-send-btn {
+  padding: 0 18px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.rag-send-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.rag-send-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Mobil: panel haritanın tamamına yakın olur */
+@media (max-width: 520px) {
+  .rag-panel {
+    right: 12px;
+    bottom: 12px;
+    height: calc(100vh - 40px);
+  }
+
+  .rag-open-btn {
+    right: 12px;
+    bottom: 12px;
+  }
+}
